@@ -13,9 +13,9 @@ typedef struct {
 } GraphSet;
 
 Graph newGraph();
-GraphSet newGraphSet();
+GraphSet newGraphSet(int);
 void addVertex(Graph*, Vertex*);
 void printGraph(Graph*);
-void splitGraph(Graph*, int, GraphSet*);
+void splitGraph(Graph*, GraphSet*);
 
 #endif

@@ -9,10 +9,10 @@ Graph newGraph() {
     return g;
 }
 
-GraphSet newGraphSet() {
+GraphSet newGraphSet(int num_graphs) {
     GraphSet splitted_graphs;
-    splitted_graphs.num_graphs = 0;
-    for(int i = 0; i < 4; i++) {
+    splitted_graphs.num_graphs = num_graphs;
+    for(int i = 0; i < splitted_graphs.num_graphs; i++) {
         splitted_graphs.graphs[i] = newGraph();
     }
     return splitted_graphs;
@@ -31,9 +31,18 @@ void printGraph(Graph *g) {
     }
 }
 
-void splitGraph(Graph *g, int n, GraphSet *gs) {
-    gs->num_graphs = n;
-    for(int i = 1; i < g->num_vertex; i++) {
-        addVertex(&(gs->graphs[i % n]), &g->elements[i]);
+void splitGraph(Graph *g, GraphSet *gs) {
+    for(int i = 0; i < g->num_vertex; i++) {
+        addVertex(&(gs->graphs[i % gs->num_graphs]), &g->elements[i]);
     }
+}
+
+bool searchNode(Graph *g, Vertex *v) {
+    bool result = false;
+    for(int i = 0; i < g->num_vertex; i++) {
+        if(g->elements[i].value == v->value) {
+            result = true;
+        }
+    }
+    return result;
 }

@@ -17,12 +17,17 @@ void scc(Graph *g, Vertex *u, Vertex s[], int* stack_size) {
 
     for(int j = 0; j < *u->num_edges; j++) {
         Vertex *v = &u->adj_list[j];
-        if(*v->index == -1) {
-            scc(g, v, s, stack_size);
-            *u->low_link = min(*u->low_link, *v->low_link);
+        if(searchNode(g, v) == true) { 
+            if(*v->index == -1) {
+                scc(g, v, s, stack_size);
+                *u->low_link = min(*u->low_link, *v->low_link);
+            }
+            else if(*v->onStack) {
+                *u->low_link = min(*u->low_link, *v->index);
+            }
         }
-        else if(*v->onStack) {
-            *u->low_link = min(*u->low_link, *v->index);
+        else {
+            break;
         }
     }
 
@@ -43,7 +48,9 @@ void tarjan(Graph *g) {
     Vertex* s = (Vertex*)malloc(sizeof(Vertex) * g->num_vertex);
     static int stack_size = 0;
     for(int i = 0; i < g->num_vertex; i++) {
-        if(*g->elements[i].index == -1)
+        if(*g->elements[i].index == -1) {
             scc(g, &g->elements[i], s, &stack_size);
+        }
     }
+    
 }
