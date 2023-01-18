@@ -19,30 +19,37 @@ GraphSet newGraphSet(int num_graphs) {
 }
 
 void addVertex(Graph *g, Vertex *v) {
-    g->elements[g->num_vertex] = *v;
+    g->elements[g->num_vertex] = v;
     g->num_vertex++;
 }
 
 void printGraph(Graph *g) {
     for (int i = 0; i < g->num_vertex; i++)
     {
-        vertexPrint(&g->elements[i]);
+        vertexPrint(g->elements[i]);
         printf("\n");
     }
 }
 
 void splitGraph(Graph *g, GraphSet *gs) {
     for(int i = 0; i < g->num_vertex; i++) {
-        addVertex(&(gs->graphs[i % gs->num_graphs]), &g->elements[i]);
+        addVertex(&(gs->graphs[i % gs->num_graphs]), g->elements[i]);
     }
 }
 
 bool searchNode(Graph *g, Vertex *v) {
     bool result = false;
     for(int i = 0; i < g->num_vertex; i++) {
-        if(g->elements[i].value == v->value) {
-            result = true;
-        }
+        if(g->elements[i]->value == v->value)
+          result = true;
     }
     return result;
+}
+
+Vertex* searchByValue(Graph *g, int value) {
+    for(int i = 0; i < g->num_vertex; i++) {
+        if(g->elements[i]->value == value)
+          return g->elements[i];
+    }
+    return newVertex(-1);
 }

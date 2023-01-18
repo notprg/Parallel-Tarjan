@@ -8,11 +8,12 @@ typedef struct Vertex {
     bool *onStack;
     int *low_link;
     int *num_edges;
-    struct Vertex *adj_list;
+    int *adj_list;
 } Vertex;
 
 int vertexGreater(Vertex, Vertex);
 int vertexLess(Vertex, Vertex);
+bool sameVertex(Vertex*, Vertex*);
 void vertexPrint(Vertex*);
 void copyVertex(Vertex*, Vertex*);
 void addEdge(Vertex*, Vertex*);

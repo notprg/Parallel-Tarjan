@@ -4,7 +4,7 @@
 
 typedef struct {
     int num_vertex;
-    Vertex *elements;
+    Vertex **elements;
 } Graph;
 
 typedef struct {
@@ -17,5 +17,5 @@ GraphSet newGraphSet(int);
 void addVertex(Graph*, Vertex*);
 void printGraph(Graph*);
 void splitGraph(Graph*, GraphSet*);
-
+Vertex* searchByValue(Graph *, int);
 #endif
