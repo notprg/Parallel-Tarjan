@@ -9,7 +9,7 @@ int min(int a, int b) {
     return a < b ? a : b;
 }
 
-void scc(Graph *g, Vertex *u, Vertex s[], int* stack_size) { 
+void scc(Graph *g, Vertex *u, Vertex s[], int* stack_size, int *sccMatrix[], int* scc_row, int* scc_column) { 
 
     static int time = 0;
     *u->index = *u->low_link = ++time;
@@ -20,7 +20,7 @@ void scc(Graph *g, Vertex *u, Vertex s[], int* stack_size) {
         Vertex *v = searchByValue(g, u->adj_list[j]);
         if(v->value != -1) { 
             if(*v->index == -1) {
-                scc(g, v, s, stack_size);
+                scc(g, v, s, stack_size, sccMatrix, scc_row, scc_column);
                 *u->low_link = min(*u->low_link, *v->low_link);
             }
             else if(*v->onStack) {
@@ -31,24 +31,23 @@ void scc(Graph *g, Vertex *u, Vertex s[], int* stack_size) {
 
     Vertex w; 
     if(*u->low_link == *u->index) {
-        printf("SCC: ");
+        (*scc_column) = 0;
         while(w.value != u->value) {
             w = s[--(*stack_size)];
-            printf("%d ", w.value);
             *w.onStack = false;
+            sccMatrix[(*scc_row)][(*scc_column)++] = w.value; 
         }
-        printf("\n");
+        (*scc_row)++;
     }
 }
 
-void tarjan(Graph *g) {
+void tarjan(Graph *g, int** sccMatrix, int *scc_row, int *scc_column) {
     
-    Vertex* s = (Vertex*)malloc(sizeof(Vertex) * g->num_vertex);
-    static int stack_size = 0;
-    for(int i = 0; i < g->num_vertex; i++) {
-        if(*g->elements[i]->index == -1) {
-            scc(g, g->elements[i], s, &stack_size);
-        }
-    }
-    
+  Vertex* s = (Vertex*)malloc(sizeof(Vertex) * g->num_vertex);
+  static int stack_size = 0;
+  for(int i = 0; i < g->num_vertex; i++) {
+      if(*g->elements[i]->index == -1) {
+          scc(g, g->elements[i], s, &stack_size, sccMatrix, scc_row, scc_column);
+      }
+  }   
 }

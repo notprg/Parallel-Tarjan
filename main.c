@@ -7,6 +7,10 @@
 
 int main(int argc, char*argv[]) {
 
+  int **sccMatrix;
+  static int scc_row = 0;
+  static int scc_column = 0;
+
   MPI_Init(&argc, &argv);
   int size, rank;
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
@@ -51,15 +55,17 @@ int main(int argc, char*argv[]) {
   
   /* ----------------------------- */
   
+  sccMatrix = (int **)malloc(gr.num_vertex * sizeof(int *));
+  for (int i = 0; i < gr.num_vertex; i++)
+      sccMatrix[i] = (int *)malloc(gr.num_vertex * sizeof(int));
+  
   int minigraph_num_vertex = (int)(gr.num_vertex / size);
   Vertex* v[minigraph_num_vertex];
   for(int o = 0; o < minigraph_num_vertex; o++) {
     v[o] = newVertex(-1);
   }
   
-  Graph miniGraphs[size];
-  for(int i = 0; i < size; i++) 
-      miniGraphs[i] = newGraph();
+  Graph miniGraphs = newGraph();
   
   if(rank==0){
     for(int i = 0; i < gs.num_graphs; i++){
@@ -74,15 +80,20 @@ int main(int argc, char*argv[]) {
     MPI_Recv(&v[k]->value, 1, MPI_INT, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
     MPI_Recv(v[k]->num_edges, 1, MPI_INT, 0, 3, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
     MPI_Recv(v[k]->adj_list, sizeof(int) * (*v[k]->num_edges), MPI_BYTE, 0, 1, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-    addVertex(&miniGraphs[rank], v[k]);
+    addVertex(&miniGraphs, v[k]);
   }
-  printGraph(&miniGraphs[2]);
+  printGraph(&miniGraphs);
   printf("\n");
-  tarjan(&miniGraphs[2]);
-  
-  
-  
-  
+  tarjan(&miniGraphs, sccMatrix, &scc_row, &scc_column);
+  printf("\n");
 
+  for(int i = 0; i < scc_row; i++) {
+      printf("SCC: ");
+      for(int j = 0; j < scc_column; j++) {
+          printf("%d\t", sccMatrix[i][j]);
+      }
+      printf("\n");
+  }
+  
   MPI_Finalize(); 
 } 
