@@ -27,7 +27,7 @@ void scc(Graph *g, Vertex *u, Vertex s[], int* stack_size) {
             }
         }
         else {
-            break;
+            printf("%d is not in this graph...\n", v->value);
         }
     }
 
