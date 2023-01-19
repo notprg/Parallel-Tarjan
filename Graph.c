@@ -38,9 +38,15 @@ void splitGraph(Graph *g, GraphSet *gs) {
         for(int j = 0; j < g->num_vertex / gs->num_graphs; j++) {
           addVertex(&(gs->graphs[i]), g->elements[j + (i * (g->num_vertex / gs->num_graphs))]);
         }
-        //addVertex(&(gs->graphs[i % gs->num_graphs]), g->elements[i]);
     }
 }
+
+/*void splitGraph(Graph *g, GraphSet *gs) {
+    for(int i = 0; i < g->num_vertex; i++) {
+        addVertex(&(gs->graphs[i % gs->num_graphs]), g->elements[i]);
+    }
+}*/
+
 
 bool searchNode(Graph *g, Vertex *v) {
     bool result = false;
