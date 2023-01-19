@@ -39,7 +39,7 @@ int main(int argc, char* argv[]){
     
 
     vertex ***graph;
-    printf("Numero totale di vertici = %d, Massimo numero di archi = %d\n", numeroDiVertici,maxNumberOfEdge);
+   // printf("Numero totale di vertici = %d, Massimo numero di archi = %d\n", numeroDiVertici,maxNumberOfEdge);
     fprintf(fp, "%d %d", numeroDiVertici,maxNumberOfEdge);
 
     /*genero un array dinamico*/
@@ -68,6 +68,7 @@ int main(int argc, char* argv[]){
 
     fflush(stdin);
     /*inizio a collegare il grafo. Tutti i vertici hanno bisogno di avere un numero di link*/
+
     vertexCount = 0; edgeCount = 0;
     for(vertexCount = 0; vertexCount<numeroDiVertici; vertexCount++){
         //printf("%d:\t", vertexCount);
@@ -76,7 +77,7 @@ int main(int argc, char* argv[]){
             if(rand()%2 == 1){/*collego i vertici*/
                 int verticeCollegato = rand() % numeroDiVertici;
                 graph[vertexCount][edgeCount] = *graph[verticeCollegato];
-                printf("\n%d %d ", vertexCount, verticeCollegato);
+                //printf("\n%d %d ", vertexCount, verticeCollegato);
                 fprintf(fp, "\n%d %d ", vertexCount, verticeCollegato);
             }
             else{/*creo il link NULL*/
