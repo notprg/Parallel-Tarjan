@@ -30,7 +30,7 @@ void scc(Graph *g, Vertex *u, Vertex s[], int* stack_size, int *sccMatrix[], int
     }
 
     Vertex w; 
-    if(*u->low_link == *u->index) {
+    if(*u->low_link == *u->index && u->value != -1) {
         (*scc_column) = 0;
         while(w.value != u->value) {
             w = s[--(*stack_size)];

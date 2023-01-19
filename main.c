@@ -104,8 +104,6 @@ int main(int argc, char*argv[]) {
   addVertex(&gr, y);
   addVertex(&gr, z);
   addVertex(&gr, aa);
-  GraphSet gs = newGraphSet(size);
-  splitGraph(&gr, &gs);
   
   /* ----------------------------- */
   
@@ -118,27 +116,20 @@ int main(int argc, char*argv[]) {
       sccMatrix[i][j] = ESCAPE;
     }
   }
-  
+  while(gr.num_vertex % size != 0) {
+    addVertex(&gr, newVertex(-1));
+  }
   int minigraph_num_vertex = (int)(gr.num_vertex / size);
-  Vertex* v[minigraph_num_vertex];
+  Vertex** v = (Vertex**)malloc(sizeof(Vertex*) * minigraph_num_vertex);
   for(int o = 0; o < minigraph_num_vertex; o++) {
     v[o] = newVertex(-1);
-  }
+  } 
   
   Graph miniGraphs = newGraph();
   
   if(rank==0){
-    tarjan(&gr, sccMatrix, &scc_row, &scc_column);
-    for(int i = 0; i < scc_row; i++) {
-      printf("SCC: ");
-      for(int j = 0; j < gr.num_vertex; j++) {
-          if(sccMatrix[i][j] != ESCAPE)
-            printf("%d ", sccMatrix[i][j]);
-          else
-            break;
-      }
-      printf("\n");
-    }
+    GraphSet gs = newGraphSet(size);
+    splitGraph(&gr, &gs);
     for(int i = 0; i < gs.num_graphs; i++){
       for(int j = 0; j < gs.graphs[i].num_vertex; j++){
         MPI_Send(&(gs.graphs[i].elements[j]->value), 1, MPI_INT, i, 0, MPI_COMM_WORLD); //OK
@@ -153,18 +144,22 @@ int main(int argc, char*argv[]) {
     MPI_Recv(v[k]->adj_list, sizeof(int) * (*v[k]->num_edges), MPI_BYTE, 0, 1, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
     addVertex(&miniGraphs, v[k]);
   }
-  //printGraph(&miniGraphs);
-  //printf("\n");
-  //tarjan(&miniGraphs, sccMatrix, &scc_row, &scc_column);
-  //printf("\n");
 
-  /*for(int i = 0; i < scc_row; i++) {
-      printf("SCC: ");
-      for(int j = 0; j < scc_column; j++) {
-          printf("%d\t", sccMatrix[i][j]);
-      }
-      printf("\n");
-  }*/
+  printGraph(&miniGraphs);
+  printf("\n");
+  tarjan(&miniGraphs, sccMatrix, &scc_row, &scc_column);
+  printf("\n");
+  for(int i = 0; i < scc_row; i++) {
+    printf("SCC: ");
+    for(int j = 0; j < gr.num_vertex; j++) {
+        if(sccMatrix[i][j] != ESCAPE)
+          printf("%d ", sccMatrix[i][j]);
+        else
+          break;
+    }
+    printf("\n");
+  }
+
   
   MPI_Finalize(); 
 } 

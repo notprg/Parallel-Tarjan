@@ -26,8 +26,10 @@ void addVertex(Graph *g, Vertex *v) {
 void printGraph(Graph *g) {
     for (int i = 0; i < g->num_vertex; i++)
     {
-        vertexPrint(g->elements[i]);
-        printf("\n");
+        if(g->elements[i]->value != -1) {
+          vertexPrint(g->elements[i]);
+          printf("\n");
+        }
     }
 }
 
