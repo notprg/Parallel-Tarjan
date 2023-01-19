@@ -35,8 +35,9 @@ void scc(Graph *g, Vertex *u, Vertex s[], int* stack_size, int *sccMatrix[], int
         while(w.value != u->value) {
             w = s[--(*stack_size)];
             *w.onStack = false;
-            sccMatrix[(*scc_row)][(*scc_column)++] = w.value; 
-        }
+            sccMatrix[(*scc_row)][(*scc_column)] = w.value; 
+            (*scc_column)++;
+        }     
         (*scc_row)++;
     }
 }
