@@ -14,7 +14,41 @@ int main(int argc, char*argv[]) {
       MPI_Comm_rank(MPI_COMM_WORLD, &rank);
       MPI_Comm_size(MPI_COMM_WORLD, &size); 
       
+      //Graph init new version
+      FILE *fp;
+      fp = fopen("file.txt", "r");
+      char line[256];
+      if(fp == NULL) {
+        printf("Impossibile aprire il file!!!\n");
+        exit(1);
+      }
 
+
+      int num_vertex, max_edges;
+      fscanf(fp, "%d %d", &num_vertex, &max_edges);
+      /*
+      int num_vertex = line[0];
+      num_vertex = atoi(&num_vertex);
+      int max_edges = line[2];
+      max_edges = atoi(&max_edges);
+      */
+
+      Vertex **vertices = (Vertex **) malloc(sizeof(Vertex *) * num_vertex);
+      for(int j = 0; j<num_vertex; j++){
+        vertices[j] = newVertex(j);
+      }
+
+      int vertice, vertice_collegato;
+      while (fscanf(fp, "%d %d", &vertice, &vertice_collegato) == 2){
+        addEdge(vertices[vertice], vertices[vertice_collegato]);
+      }
+
+      Graph gr = newGraph();
+      for(int i=0; i<num_vertex; i++){
+        addVertex(&gr, vertices[i]);
+      }
+
+/*
       //Graph init
       Vertex *a = newVertex(1);
       Vertex *b = newVertex(2);
@@ -47,7 +81,7 @@ int main(int argc, char*argv[]) {
       addVertex(&gr, e);
       addVertex(&gr, f);
       addVertex(&gr, g);
-      addVertex(&gr, h);
+      addVertex(&gr, h);*/
       
       int minigraph_num_vertex = (int)(gr.num_vertex / size);
       Vertex* v[minigraph_num_vertex];
@@ -68,7 +102,7 @@ int main(int argc, char*argv[]) {
             MPI_Send(gs.graphs[i].elements[j].low_link, 1, MPI_INT, i, 2, MPI_COMM_WORLD);
             MPI_Send(gs.graphs[i].elements[j].num_edges, 1, MPI_INT, i, 3, MPI_COMM_WORLD);
             MPI_Send(gs.graphs[i].elements[j].onStack, 1, MPI_C_BOOL, i, 4, MPI_COMM_WORLD);
-            MPI_Send(gs.graphs[i].elements[j].adj_list, sizeof(Vertex)*(*b->num_edges), MPI_BYTE, i, 5, MPI_COMM_WORLD);
+            MPI_Send(gs.graphs[i].elements[j].adj_list, sizeof(Vertex)*(*vertices[2]->num_edges), MPI_BYTE, i, 5, MPI_COMM_WORLD);
           }
         }
       }
@@ -85,6 +119,11 @@ int main(int argc, char*argv[]) {
       printf("\n");
       //tarjan(&miniGraphs);
       printf("\n");
+
+      for (int i = 0; i < num_vertex; i++) {
+        free(vertices[i]);
+      }
+      free(vertices);
       MPI_Finalize(); 
 } 
 
