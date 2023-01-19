@@ -102,5 +102,9 @@ int main(int argc, char*argv[]) {
     printf("\n");
   }
   
+  free(vertices);
+  free(sccMatrix);
+  free(v);
+  fclose(fp);
   MPI_Finalize(); 
 } 
