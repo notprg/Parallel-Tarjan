@@ -9,7 +9,7 @@ int min(int a, int b) {
     return a < b ? a : b;
 }
 
-void scc(Graph *g, Vertex *u, Vertex s[], int* stack_size, int *sccMatrix[], int* scc_row, int* scc_column) { 
+void scc(Graph *g, Vertex *u, Vertex s[], int* stack_size, Vertex *sccMatrix[], int* scc_row, int* scc_column) { 
 
     static int time = 0;
     *u->index = *u->low_link = ++time;
@@ -35,14 +35,14 @@ void scc(Graph *g, Vertex *u, Vertex s[], int* stack_size, int *sccMatrix[], int
         while(w.value != u->value) {
             w = s[--(*stack_size)];
             *w.onStack = false;
-            sccMatrix[(*scc_row)][(*scc_column)] = w.value; 
+            sccMatrix[(*scc_row)][(*scc_column)] = w;
             (*scc_column)++;
-        }     
+        }   
         (*scc_row)++;
     }
 }
 
-void tarjan(Graph *g, int** sccMatrix, int *scc_row, int *scc_column) {
+void tarjan(Graph *g, Vertex** sccMatrix, int *scc_row, int *scc_column) {
     
   Vertex* s = (Vertex*)malloc(sizeof(Vertex) * g->num_vertex);
   static int stack_size = 0;
