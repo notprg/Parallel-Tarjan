@@ -24,14 +24,14 @@ int main(int argc, char* argv[]){
     int MAX_VERTICES = atoi(argv[1]);
     int MAX_EDGES = atoi(argv[2]);
 
-    srand(time(NULL));
-    int numeroDiVertici = rand() % MAX_VERTICES;
-    //int numeroDiVertici = MAX_VERTICES;
+    //srand(time(NULL));
+    //int numeroDiVertici = rand() % MAX_VERTICES;
+    int numeroDiVertici = MAX_VERTICES;
     
     /*numero massimo di archi che un nodo può avere*/
-    srand(time(NULL));
-    int maxNumberOfEdge = rand() % MAX_EDGES;
-    //int maxNumberOfEdge = MAX_EDGES;
+    //srand(time(NULL));
+    //int maxNumberOfEdge = rand() % MAX_EDGES;
+    int maxNumberOfEdge = MAX_EDGES;
 
     // Il grafo deve avere almeno un nodo
     if(numeroDiVertici == 0)

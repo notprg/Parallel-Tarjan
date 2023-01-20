@@ -18,4 +18,5 @@ void addVertex(Graph*, Vertex*);
 void printGraph(Graph*);
 void splitGraph(Graph*, GraphSet*);
 Vertex* searchByValue(Graph *, int);
+bool searchNode(Graph*, Vertex*);
 #endif
