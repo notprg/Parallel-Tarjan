@@ -43,8 +43,6 @@ int main(int argc, char*argv[]) {
   for(int i=0; i<num_vertex; i++){
       addVertex(&gr, vertices[i]);
   }
-  printGraph(&gr);
-  printf("\n");
   free(vertices);
   
   while(gr.num_vertex % size != 0) {
@@ -120,22 +118,29 @@ int main(int argc, char*argv[]) {
           }
       }
       else if(utility[rank] == 0){
-          Graph sccFound[scc_row];
+          bool flag = false;
+          bool connectSCC = false;
+          int received_scc;
+          int received_num_vertex;
+          int next = scc_row;
+          int stop;
+          MPI_Recv(&received_scc, 1, MPI_INT, rank + (size_vect/2), 4, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+          MPI_Recv(&received_num_vertex, 1, MPI_INT, rank + (size_vect/2), 5, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+          Graph sccFound[scc_row + received_scc];
           for(int i = 0; i < scc_row; i++) { // RIGA PER RIGA CREO IL GRAFO
               sccFound[i] = newGraph();
               for(int j = 0; j < miniGraphs.num_vertex; j++) {
                   if(sccMatrix[i][j].value != -1) 
                       addVertex(&sccFound[i], &sccMatrix[i][j]);
               }
+              stop = i;
+          } 
+          for(int j = ++stop; j < scc_row + received_scc; j++) {
+              sccFound[j] = newGraph();
+              for(int k = 0; k < miniGraphs.num_vertex; k++) {
+                    addVertex(&sccFound[j], newVertex(-1));
+              }
           }
-          bool flag = false;
-          bool connectSCC = false;
-          int received_scc;
-          int received_num_vertex;
-          MPI_Recv(&received_scc, 1, MPI_INT, rank + (size_vect/2), 4, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-          //printf("Received SCC: %d\n", received_scc);
-          MPI_Recv(&received_num_vertex, 1, MPI_INT, rank + (size_vect/2), 5, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-          //printf("Received num_vertex: %d\n", received_num_vertex);
           Vertex *rv = newVertex(-1);
           Graph sccReceived[received_scc];
           for(int i = 0; i < received_scc; i++) {
@@ -172,15 +177,21 @@ int main(int argc, char*argv[]) {
                         }
                     } 
                 }
-                flag = false;
+                //flag = false;
                 if(connectSCC) {
                     for(int x = 0; x < sccReceived[i].num_vertex; x++) {
                         addVertex(&sccFound[j], sccReceived[i].elements[x]);
                     }
-                    connectSCC = false;
+                    //connectSCC = false;
+                    //printf("Qua tutto ok\n");
                 }
                 else {
                     //AGGIUNGO L'SCC AL VETTORE DI SCC
+                    for(int x = 0; x < sccReceived[i].num_vertex; x++) {
+                        addVertex(&sccFound[next], sccReceived[i].elements[x]);
+                    }
+                    next++;
+                    //printf("Qua segmentation fault\n");
                 }
             }
         }
