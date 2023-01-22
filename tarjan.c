@@ -42,7 +42,7 @@ void scc(Graph *g, Vertex *u, Vertex s[], int* stack_size, Vertex *sccMatrix[], 
     }
 }
 
-void tarjan(Graph *g, Vertex** sccMatrix, int *scc_row, int *scc_column) {
+Vertex **tarjan(Graph *g, Vertex** sccMatrix, int *scc_row, int *scc_column) {
     
   Vertex* s = (Vertex*)malloc(sizeof(Vertex) * g->num_vertex);
   static int stack_size = 0;
@@ -51,4 +51,5 @@ void tarjan(Graph *g, Vertex** sccMatrix, int *scc_row, int *scc_column) {
           scc(g, g->elements[i], s, &stack_size, sccMatrix, scc_row, scc_column);
       }
   }   
+  return sccMatrix;
 }

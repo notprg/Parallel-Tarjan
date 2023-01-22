@@ -1,11 +1,12 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <omp.h>
 #include "Graph.h"
 
 Graph newGraph() {
     Graph g;
     g.num_vertex = 0;
-    g.elements = malloc(10000 * sizeof(Vertex));
+    g.elements = malloc(1000000 * sizeof(Vertex));
     return g;
 }
 
@@ -24,6 +25,7 @@ void addVertex(Graph *g, Vertex *v) {
 }
 
 void printGraph(Graph *g) {
+    #pragma omp parallel for
     for (int i = 0; i < g->num_vertex; i++)
     {
         if(g->elements[i]->value != -1) {
@@ -43,6 +45,7 @@ void splitGraph(Graph *g, GraphSet *gs) {
 
 bool searchNode(Graph *g, Vertex *v) {
     bool result = false;
+    #pragma omp parallel for
     for(int i = 0; i < g->num_vertex; i++) {
         if(g->elements[i]->value == v->value)
           result = true;

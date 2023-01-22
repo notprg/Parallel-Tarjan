@@ -16,6 +16,7 @@ bool sameVertex(Vertex *v1, Vertex *v2) {
 
 void vertexPrint(Vertex *v) {
     printf("%d -> ", v->value);
+    #pragma omp parallel for
     for(int i = 0; i < *v->num_edges; i++) {
         printf("%d ", v->adj_list[i]);
     }
