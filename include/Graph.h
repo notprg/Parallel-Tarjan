@@ -6,7 +6,7 @@
 # Group:
 # Marcone Giuseppe 0622701896 g.marcone2@studenti.unisa.it               
 # Pizzulo Rocco Gerardo 0622701990  r.pizzulo@studenti.unisa.it 
-# Russo Luigi  0622701  l.russo84@studenti.unisa.it
+# Russo Luigi  0622702071  l.russo86@studenti.unisa.it
 #
 # This file is part of ParallelTarjan.
 #

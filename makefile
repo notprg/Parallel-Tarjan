@@ -1,4 +1,3 @@
-#
 # Course: High Performance Computing 2022/2023
 # 
 # Lecturer: Francesco Moscato fmoscato@unisa.it
@@ -6,7 +5,7 @@
 # Group:
 # Marcone Giuseppe 0622701896 g.marcone2@studenti.unisa.it               
 # Pizzulo Rocco Gerardo 0622701990  r.pizzulo@studenti.unisa.it 
-# Russo Luigi  0622701  l.russo84@studenti.unisa.it
+# Russo Luigi  0622702071  l.russo86@studenti.unisa.it
 #
 # This file is part of ParallelTarjan.
 #
@@ -22,17 +21,17 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with ParallelTarjan.  If not, see <http://www.gnu.org/licenses/>.
-#
+
 
 
 CC=mpicc
-CFLAGS=-O3 -fopenmp -lm
+CFLAGS=-O3 -fopenmp -I./include -lm
 LDFLAGS=-lm
 
 all: main
 
-main: main.c
-	$(CC) $(CFLAGS) -o main main.c $(LDFLAGS)
+main: ./src/main.c
+	$(CC) $(CFLAGS) -o ./src/main ./src/main.c $(LDFLAGS)
 
 clean:
 	rm -f main

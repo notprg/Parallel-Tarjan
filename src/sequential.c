@@ -6,7 +6,7 @@
 # Group:
 # Marcone Giuseppe 0622701896 g.marcone2@studenti.unisa.it               
 # Pizzulo Rocco Gerardo 0622701990  r.pizzulo@studenti.unisa.it 
-# Russo Luigi  0622701  l.russo84@studenti.unisa.it
+# Russo Luigi  0622702071  l.russo86@studenti.unisa.it
 #
 # This file is part of ParallelTarjan.
 #
@@ -28,8 +28,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include "Vertex.h"
-#include "Graph.h"
+#include "../include/Vertex.h"
+#include "../include/Graph.h"
 #include "tarjan.c"
 void printSCC(Vertex **scc, int row, int column);
 int main(int argc, char*argv[]) {
@@ -49,7 +49,7 @@ int main(int argc, char*argv[]) {
   fscanf(fp, "%d %d", &num_vertex, &max_edges);
 
   Vertex **vertices = (Vertex **) malloc(sizeof(Vertex *) * num_vertex);
-  for(int j = 0; j<num_vertex; j++){
+  for(int j = 1; j<=num_vertex; j++){
       vertices[j] = newVertex(j);
   }
 
@@ -61,7 +61,7 @@ int main(int argc, char*argv[]) {
   fclose(fp);
   
   Graph gr = newGraph();
-  for(int i=0; i<num_vertex; i++){
+  for(int i=1; i<=num_vertex; i++){
       addVertex(&gr, vertices[i]);
   }
   
@@ -81,7 +81,7 @@ int main(int argc, char*argv[]) {
   }
   
   sccMatrix = tarjan(gr, sccMatrix, &scc_row, &scc_column);  
-  //printSCC(sccMatrix, scc_row, gr.num_vertex);
+  printSCC(sccMatrix, scc_row, gr.num_vertex);
   return 0;
 }
   
@@ -89,12 +89,12 @@ void printSCC(Vertex **scc, int row, int column) {
     for(int i = 0; i < row; i++) {
         printf("SCC n. %d: ", i);
         for(int j = 0; j < column; j++) {
-            if(scc[i][j].value != -1) {
+            //if(scc[i][j].value != -1) {
                 printf("%d ", scc[i][j].value); 
-            }
-            else {
-                break;
-            }
+            //}
+            //else {
+            //    break;
+            //}
         }
         printf("\n");
     }

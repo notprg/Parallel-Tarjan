@@ -6,7 +6,7 @@
 # Group:
 # Marcone Giuseppe 0622701896 g.marcone2@studenti.unisa.it               
 # Pizzulo Rocco Gerardo 0622701990  r.pizzulo@studenti.unisa.it 
-# Russo Luigi  0622701  l.russo84@studenti.unisa.it
+# Russo Luigi  0622702071  l.russo86@studenti.unisa.it
 #
 # This file is part of ParallelTarjan.
 #
@@ -29,6 +29,7 @@
 #include <stdlib.h>
 #include <mpi.h>
 #include <math.h>
+#include <omp.h>
 #include "Vertex.h"
 #include "Graph.h"
 #include "tarjan.c"
@@ -37,6 +38,7 @@ void printSCC(Vertex **scc, int row, int column);
 
 int main(int argc, char*argv[]) {
 
+  omp_set_num_threads(2);
   static int scc_row = 0;
   static int scc_column = 0;
   MPI_Init(&argc, &argv);
@@ -56,7 +58,8 @@ int main(int argc, char*argv[]) {
 
   Vertex **vertices = (Vertex **) malloc(sizeof(Vertex *) * num_vertex);
   
-  for(int j = 0; j < num_vertex; j++){
+  #pragma omp parallel for
+  for(int j = 1; j <= num_vertex; j++){
       vertices[j] = newVertex(j);
   }
 
@@ -68,7 +71,7 @@ int main(int argc, char*argv[]) {
   fclose(fp);
 
   Graph gr = newGraph();
-  for(int i=0; i<num_vertex; i++){
+  for(int i=1; i<=num_vertex; i++){
       addVertex(&gr, vertices[i]);
   }
   
@@ -85,7 +88,9 @@ int main(int argc, char*argv[]) {
   }
   
   Vertex *pof = newVertex(-1);
+  #pragma omp parallel for
   for (int i = 0; i < gr.num_vertex; i++) {
+      #pragma omp parallel for
       for(int j = 0; j < gr.num_vertex; j++) {
           sccMatrix[i][j] = *pof;
       }
@@ -94,6 +99,7 @@ int main(int argc, char*argv[]) {
   int minigraph_num_vertex = (int)(gr.num_vertex / size);
   Vertex** v = (Vertex**)malloc(sizeof(Vertex*) * minigraph_num_vertex);
   
+  #pragma omp parallel for
   for(int o = 0; o < minigraph_num_vertex; o++) {
       v[o] = newVertex(-1);
   } 
@@ -126,7 +132,8 @@ int main(int argc, char*argv[]) {
       int size_vect = (int)size / pow(2, z);
       int utility[size_vect];
       int stop = 0;
-      for(int i = 0; i < size_vect; i++) {
+      int i;
+      for(i = 0; i < size_vect; i++) {
           if(i < size_vect / 2)
               utility[i] = 0;
           else
@@ -139,30 +146,27 @@ int main(int argc, char*argv[]) {
       
       if(utility[rank] == 1) 
       {
-      
-          sccMatrix = tarjan(composedGraph, sccMatrix, &scc_row, &scc_column);
-          
+          sccMatrix = tarjan(composedGraph, sccMatrix, &scc_row, &scc_column);   
           if(!myGraphIsOk) {
+              #pragma omp parallel for
               for(int i = 0; i < scc_row; i++) {
+                  #pragma omp parallel for
                   for(int j = 0; j < gr.num_vertex; j++) {
                       if(sccMatrix[i][j].value != -1 && !searchNode(&composedGraph, &sccMatrix[i][j])) {
                           addVertex(&composedGraph, &sccMatrix[i][j]);
                       }
                       else {
-                          break;
+                          j = gr.num_vertex;
                       }
                   }
               }
           }
-          //INVIO#pragma omp parallel for
-          MPI_Send(&composedGraph.num_vertex, 1, MPI_INT, rank - (size_vect/2), 4, MPI_COMM_WORLD);
-          
+          MPI_Send(&composedGraph.num_vertex, 1, MPI_INT, rank - (size_vect/2), 4, MPI_COMM_WORLD); 
           for(int i = 0; i < composedGraph.num_vertex; i++) {
               MPI_Send(&(composedGraph.elements[i]->value), 1, MPI_INT, rank - (size_vect/2), 0, MPI_COMM_WORLD); //OK
               MPI_Send(composedGraph.elements[i]->num_edges, 1, MPI_INT, rank - (size_vect/2), 3, MPI_COMM_WORLD); //OK 
               MPI_Send(composedGraph.elements[i]->adj_list, sizeof(int) * (*composedGraph.elements[i]->num_edges), MPI_BYTE, rank - (size_vect/2), 10, MPI_COMM_WORLD);
           }
-          //MUOIO
       }
       
       else if(utility[rank] == 0){
@@ -179,9 +183,10 @@ int main(int argc, char*argv[]) {
           }
           sccMatrix = tarjan(composedGraph, sccMatrix, &scc_row, &scc_column);
           myGraphIsOk = true;
-          
           Vertex *pof = newVertex(-1);
+          #pragma omp parallel for
           for (int i = 0; i < gr.num_vertex; i++) {
+              #pragma omp parallel for
               for(int j = 0; j < gr.num_vertex; j++) {
                   sccMatrix[i][j] = *pof;
               }
@@ -189,52 +194,44 @@ int main(int argc, char*argv[]) {
       }
   } 
     MPI_Barrier(MPI_COMM_WORLD);
-    if(size == 1) {          
-        Vertex **finalSCC = (Vertex **)malloc(gr.num_vertex * sizeof(Vertex*)); 
-
-        for(int i = 0; i < gr.num_vertex; i++) {
-            finalSCC[i] = (Vertex *)malloc(sizeof(Vertex) * gr.num_vertex);
-        }
-        
-        Vertex *pof = newVertex(-1);
-        for (int i = 0; i < gr.num_vertex; i++) {
-            for(int j = 0; j < gr.num_vertex; j++) {
-                finalSCC[i][j] = *pof;
-            }
-        }
-        
+    if(size == 1) {
         sccMatrix = tarjan(gr, sccMatrix, &scc_row, &scc_column); 
-        //printSCC(sccMatrix, scc_row, composedGraph.num_vertex);
-        free(sccMatrix);
+        printSCC(sccMatrix, scc_row, composedGraph.num_vertex);
     }
     else if(rank == 0) {
         
         while(composedGraph.num_vertex % size != 0) {
             addVertex(&composedGraph, newVertex(-1));
         }
-                
+        
+        #pragma omp parallel for
         for(int i = 0; i < composedGraph.num_vertex; i++) {
             *composedGraph.elements[i]->index = -1;
             *composedGraph.elements[i]->low_link = -1;
             *composedGraph.elements[i]->onStack = false;
         }
         
-        sccMatrix= tarjan(composedGraph, sccMatrix, &scc_row, &scc_column); 
-        //printSCC(sccMatrix, scc_row, composedGraph.num_vertex);
-        free(sccMatrix);
+        sccMatrix = tarjan(composedGraph, sccMatrix, &scc_row, &scc_column); 
+        printSCC(sccMatrix, scc_row, composedGraph.num_vertex);
     }
+    for(int i = 0; i < gr.num_vertex; i++) {
+        free(sccMatrix[i]);
+    }
+    free(sccMatrix);
     MPI_Finalize();
 }
 
 void printSCC(Vertex **scc, int row, int column) {
+  #pragma omp parallel for
   for(int i = 0; i < row; i++) {
       printf("SCC n. %d: ", i);
+      #pragma omp parallel for
       for(int j = 0; j < column; j++) {
           if(scc[i][j].value != -1 && scc[i][j].value != 0) {
               printf("%d ", scc[i][j].value); 
           }
           else {
-              break;
+              j = column;
           }
       }
       printf("\n");

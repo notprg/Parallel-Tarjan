@@ -6,7 +6,7 @@
 # Group:
 # Marcone Giuseppe 0622701896 g.marcone2@studenti.unisa.it               
 # Pizzulo Rocco Gerardo 0622701990  r.pizzulo@studenti.unisa.it 
-# Russo Luigi  0622701  l.russo84@studenti.unisa.it
+# Russo Luigi  0622702071  l.russo86@studenti.unisa.it
 #
 # This file is part of ParallelTarjan.
 #
@@ -27,7 +27,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "Graph.h"
+#include "../include/Graph.h"
 
 Graph newGraph() {
     Graph g;
@@ -51,6 +51,7 @@ void addVertex(Graph *g, Vertex *v) {
 }
 
 void printGraph(Graph *g) {
+    #pragma omp parallel for
     for (int i = 0; i < g->num_vertex; i++)
     {
         if(g->elements[i]->value != -1) {
@@ -61,6 +62,7 @@ void printGraph(Graph *g) {
 }
 
 void splitGraph(Graph *g, GraphSet *gs) {
+    #pragma omp parallel for
     for(int i = 0; i < gs->num_graphs; i++) {
         for(int j = 0; j < g->num_vertex / gs->num_graphs; j++) {
           addVertex(&gs->graphs[i], g->elements[j + (i * (g->num_vertex / gs->num_graphs))]);
@@ -68,25 +70,9 @@ void splitGraph(Graph *g, GraphSet *gs) {
     }
 }
 
-/*graphSet dividi(Grafo *grafo, int nDivisioni){
-    graphSet aggiunta = newGraphSet();
-    aggiunta.numGraph = nDivisioni;
-    for (int i = 0; i < grafo->num_element; i++){
-        addVertex(&aggiunta.grafi[i % nDivisioni], arrayGetV(&grafo->element, i));
-    }
-    arrayDestroyV(&grafo->element);
-    
-    return aggiunta;
-}*/
-
-/*void splitGraph(Graph *g, GraphSet *gs) {
-      for(int j = 0; j < g->num_vertex; j++) {
-        addVertex(&gs->graphs[j % gs->num_graphs], g->elements[j]);
-      }
-}*/
-
 bool searchNode(Graph *g, Vertex *v) {
     bool result = false;
+    #pragma omp parallel for
     for(int i = 0; i < g->num_vertex; i++) {
         if(g->elements[i]->value == v->value)
           result = true;

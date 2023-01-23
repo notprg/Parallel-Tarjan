@@ -6,7 +6,7 @@
 # Group:
 # Marcone Giuseppe 0622701896 g.marcone2@studenti.unisa.it               
 # Pizzulo Rocco Gerardo 0622701990  r.pizzulo@studenti.unisa.it 
-# Russo Luigi  0622701  l.russo84@studenti.unisa.it
+# Russo Luigi  0622702071  l.russo86@studenti.unisa.it
 #
 # This file is part of ParallelTarjan.
 #
@@ -29,6 +29,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <unistd.h>
+#include <omp.h>
 #include "Graph.c"
 #include "Vertex.c"
 
@@ -42,7 +43,6 @@ void scc(Graph g, Vertex *u, Vertex s[], int* stack_size, Vertex *sccMatrix[], i
     *u->index = *u->low_link = ++time;
     s[(*stack_size)++] = *u;
     *u->onStack = true;
-
     for(int j = 0; j < *u->num_edges; j++) {
         Vertex *v = searchByValue(&g, u->adj_list[j]);
         if(v->value != -1) { 

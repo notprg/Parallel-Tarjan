@@ -6,7 +6,7 @@
 # Group:
 # Marcone Giuseppe 0622701896 g.marcone2@studenti.unisa.it               
 # Pizzulo Rocco Gerardo 0622701990  r.pizzulo@studenti.unisa.it 
-# Russo Luigi  0622701  l.russo84@studenti.unisa.it
+# Russo Luigi  0622702071  l.russo86@studenti.unisa.it
 #
 # This file is part of ParallelTarjan.
 #
@@ -27,7 +27,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "Vertex.h"
+#include "../include/Vertex.h"
 
 int vertexGreater(Vertex v1, Vertex v2) {
     return v1.value > v2.value;
@@ -43,6 +43,7 @@ bool sameVertex(Vertex *v1, Vertex *v2) {
 
 void vertexPrint(Vertex *v) {
     printf("%d -> ", v->value);
+    #pragma omp parallel for
     for(int i = 0; i < *v->num_edges; i++) {
         printf("%d ", v->adj_list[i]);
     }
