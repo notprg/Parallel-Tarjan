@@ -1,3 +1,30 @@
+/*
+# Course: High Performance Computing 2022/2023
+# 
+# Lecturer: Francesco Moscato fmoscato@unisa.it
+#
+# Group:
+# Marcone Giuseppe 0622701896 g.marcone2@studenti.unisa.it               
+# Pizzulo Rocco Gerardo 0622701990  r.pizzulo@studenti.unisa.it 
+# Russo Luigi  0622701  l.russo84@studenti.unisa.it
+#
+# This file is part of ParallelTarjan.
+#
+# ParallelTarjan is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# ParallelTarjan is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with ParallelTarjan.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <mpi.h>
@@ -45,7 +72,7 @@ int main(int argc, char*argv[]) {
       addVertex(&gr, vertices[i]);
   }
   
-  free(vertices);
+  //free(vertices);
   
   while(gr.num_vertex % size != 0) {
       addVertex(&gr, newVertex(-1));
@@ -177,7 +204,7 @@ int main(int argc, char*argv[]) {
         }
         
         sccMatrix = tarjan(gr, sccMatrix, &scc_row, &scc_column); 
-        printSCC(sccMatrix, scc_row, composedGraph.num_vertex);
+        //printSCC(sccMatrix, scc_row, composedGraph.num_vertex);
         free(sccMatrix);
     }
     else if(rank == 0) {
@@ -193,7 +220,7 @@ int main(int argc, char*argv[]) {
         }
         
         sccMatrix= tarjan(composedGraph, sccMatrix, &scc_row, &scc_column); 
-        printSCC(sccMatrix, scc_row, composedGraph.num_vertex);
+        //printSCC(sccMatrix, scc_row, composedGraph.num_vertex);
         free(sccMatrix);
     }
     MPI_Finalize();
