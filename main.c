@@ -6,18 +6,18 @@
 #include "Graph.h"
 #include "tarjan.c"
 
-int fin = -1;
 void printSCC(Vertex **scc, int row, int column);
 
 int main(int argc, char*argv[]) {
-  
+
+  int fin = -1;
   static int scc_row = 0;
   static int scc_column = 0;
   MPI_Init(&argc, &argv);
   int size, rank;
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
   MPI_Comm_size(MPI_COMM_WORLD, &size); 
-  //Graph init new version
+  
   FILE *fp;
   fp = fopen("file.txt", "r");
   if(fp == NULL) {
@@ -46,7 +46,7 @@ int main(int argc, char*argv[]) {
       addVertex(&gr, vertices[i]);
   }
   
-  free(vertices);
+  //free(vertices);
   
   while(gr.num_vertex % size != 0) {
       addVertex(&gr, newVertex(-1));
@@ -92,8 +92,8 @@ int main(int argc, char*argv[]) {
     addVertex(&miniGraphs, v[k]);
   }
   
-  free(v);
-  Graph composedGraph = newGraph();
+  //free(v);
+  Graph composedGraph = miniGraphs;
   static bool myGraphIsOk = false;
   
   for(int z = 0; z < log2(size); z++) { 
@@ -110,10 +110,12 @@ int main(int argc, char*argv[]) {
       for(int j = ++stop; j < size; j++) {
           utility[j] = -1;
       }
-      //MPI_Barrier(MPI_COMM_WORLD);
-      if(utility[rank] == 1) { //SONO IL PROCESSO CHE DEVE INVIARE
-          //COSTRUISCO IL GRAFO DELLE MIE SCC
-          sccMatrix = tarjan(miniGraphs, sccMatrix, &scc_row, &scc_column);
+      
+      if(utility[rank] == 1) 
+      {
+      
+          sccMatrix = tarjan(composedGraph, sccMatrix, &scc_row, &scc_column);
+          
           if(!myGraphIsOk) {
               for(int i = 0; i < scc_row; i++) {
                   for(int j = 0; j < gr.num_vertex; j++) {
@@ -138,23 +140,8 @@ int main(int argc, char*argv[]) {
       }
       
       else if(utility[rank] == 0){
-          tarjan(miniGraphs, sccMatrix, &scc_row, &scc_column);
           int received_scc;          
           MPI_Recv(&received_scc, 1, MPI_INT, rank + (size_vect/2), 4, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-          for(int i = 0; i < scc_row; i++) { 
-              for(int j = 0; j < miniGraphs.num_vertex; j++) {
-                  if(sccMatrix[i][j].value != -1 && !searchNode(&composedGraph, &sccMatrix[i][j])) {     
-                      addVertex(&composedGraph, &sccMatrix[i][j]);
-                  }
-                  else {
-                      j = miniGraphs.num_vertex;
-                  }
-              }
-          }
-          int vertex_value; 
-          int vertex_adj_num;
-          myGraphIsOk = true;
-          
           for(int i = 0; i < received_scc; i++) {
                   Vertex *rv = newVertex(-1);
                   MPI_Recv(&rv->value, 1, MPI_INT, rank + (size_vect/2), 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
@@ -165,6 +152,14 @@ int main(int argc, char*argv[]) {
                   }
           }
           sccMatrix = tarjan(composedGraph, sccMatrix, &scc_row, &scc_column);
+          myGraphIsOk = true;
+          
+          Vertex *pof = newVertex(-1);
+          for (int i = 0; i < gr.num_vertex; i++) {
+              for(int j = 0; j < gr.num_vertex; j++) {
+                  sccMatrix[i][j] = *pof;
+              }
+          }
       }
       fin = z;
   }  
@@ -183,31 +178,26 @@ int main(int argc, char*argv[]) {
             }
         }
         
-        static int row = 0;
-        static int column = 0;
-        finalSCC = tarjan(gr, finalSCC, &row, &column); 
-        printSCC(finalSCC, row, gr.num_vertex);
-        free(finalSCC);
+        sccMatrix = tarjan(gr, sccMatrix, &scc_row, &scc_column); 
+        printf("SCC trovate: %d\n", scc_row);
+        printSCC(sccMatrix, scc_row, gr.num_vertex);
     }
     MPI_Barrier(MPI_COMM_WORLD);
-    if(rank == 0 && fin == log2(size) - 1) {
+    if(rank == 0 && fin == log2(size) - 1 && size != 1) {
+        
         while(composedGraph.num_vertex % size != 0) {
             addVertex(&composedGraph, newVertex(-1));
         }
-        Vertex **finalSCC = (Vertex **)malloc(gr.num_vertex * sizeof(Vertex*)); 
-        for(int i = 0; i < gr.num_vertex; i++) {
-            finalSCC[i] = (Vertex *)malloc(sizeof(Vertex) * gr.num_vertex);
+                
+        for(int i = 0; i < composedGraph.num_vertex; i++) {
+            *composedGraph.elements[i]->index = -1;
+            *composedGraph.elements[i]->low_link = -1;
+            *composedGraph.elements[i]->onStack = false;
         }
-        Vertex *pof = newVertex(-1);
-        for (int i = 0; i < gr.num_vertex; i++) {
-            for(int j = 0; j < gr.num_vertex; j++) {
-                finalSCC[i][j] = *pof;
-            }
-        }
-        scc_row = scc_column = 0;
-        finalSCC = tarjan(gr, finalSCC, &scc_row, &scc_column); 
-        printSCC(finalSCC, scc_row, composedGraph.num_vertex);
-        free(finalSCC);
+        
+        sccMatrix= tarjan(composedGraph, sccMatrix, &scc_row, &scc_column); 
+        printf("SCC trovate: %d\n", scc_row);
+        printSCC(sccMatrix, scc_row, composedGraph.num_vertex);
     }
     MPI_Finalize();
 }
@@ -216,7 +206,7 @@ void printSCC(Vertex **scc, int row, int column) {
   for(int i = 0; i < row; i++) {
       printf("SCC n. %d: ", i);
       for(int j = 0; j < column; j++) {
-          if(scc[i][j].value != -1) {
+          if(scc[i][j].value != -1 && scc[i][j].value != 0) {
               printf("%d ", scc[i][j].value); 
           }
           else {

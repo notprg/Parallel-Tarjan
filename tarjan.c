@@ -45,6 +45,7 @@ void scc(Graph g, Vertex *u, Vertex s[], int* stack_size, Vertex *sccMatrix[], i
 Vertex **tarjan(Graph g, Vertex** sccMatrix, int *scc_row, int *scc_column) {
     
   Vertex* s = (Vertex*)malloc(sizeof(Vertex) * g.num_vertex);
+  *scc_row = *scc_column = 0;
   static int stack_size = 0;
   for(int i = 0; i < g.num_vertex; i++) {
       if(*g.elements[i]->index == -1 && g.elements[i]->value != -1) {
