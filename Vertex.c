@@ -37,6 +37,6 @@ Vertex* newVertex(int value) {
     *v->onStack = false;
     v->low_link = (int *)malloc(sizeof(int));
     *v->low_link = -1;
-    v->adj_list = (int *)malloc(10000 * sizeof(int));
+    v->adj_list = (int *)malloc(50 * sizeof(int));
     return v;
 }

@@ -54,7 +54,7 @@ int main(int argc, char*argv[]) {
   }
   
   sccMatrix = tarjan(gr, sccMatrix, &scc_row, &scc_column);  
-  printSCC(sccMatrix, scc_row, gr.num_vertex);
+  //printSCC(sccMatrix, scc_row, gr.num_vertex);
   return 0;
 }
   
