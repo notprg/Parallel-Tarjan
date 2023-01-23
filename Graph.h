@@ -19,4 +19,5 @@ void printGraph(Graph*);
 void splitGraph(Graph*, GraphSet*);
 Vertex* searchByValue(Graph *, int);
 bool searchNode(Graph*, Vertex*);
+bool graphEqual(Graph, Graph);
 #endif
