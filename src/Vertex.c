@@ -29,18 +29,40 @@
 #include <stdlib.h>
 #include "../include/Vertex.h"
 
+/**
+* @brief This function verifies if v1 is greater than v2 
+* @param v1   Vertex element
+* @param v2   Vertex element
+* @return 1 if v1 is greater than v2, 0 otherwise
+*/
 int vertexGreater(Vertex v1, Vertex v2) {
     return v1.value > v2.value;
 }
 
+/**
+* @brief This function verifies if v1 is less than v2 
+* @param v1   Vertex element
+* @param v2   Vertex element
+* @return 1 if v1 is less than v2, 0 otherwise
+*/
 int vertexLess(Vertex v1, Vertex v2) {
     return v1.value < v2.value;
 }
 
+/**
+* @brief This function verifies if two vertex have the same value
+* @param v1   pointer to a Vertex element
+* @param v2   pointer to a Vertex element
+* @return true if v1 and v2 have the same value, false otherwise
+*/
 bool sameVertex(Vertex *v1, Vertex *v2) {
     return (*v1).value == (*v2).value;
 }
 
+/**
+* @brief This function print the value of the Vertex v and his adjacence list
+* @param v   pointer to a Vertex element
+*/
 void vertexPrint(Vertex *v) {
     printf("%d -> ", v->value);
     #pragma omp parallel for
@@ -49,11 +71,22 @@ void vertexPrint(Vertex *v) {
     }
 }
 
+/**
+* @brief This function add the Vertex v2 to the adjacence list of v1
+* @param v1   pointer to a Vertex element
+* @param v2   pointer to a Vertex element
+*/
 void addEdge(Vertex *v1, Vertex* v2) {
     v1->adj_list[*v1->num_edges] = v2->value;
     (*v1->num_edges)++;
 }
 
+/**
+* @brief This function create a new Vertex with value as value, 0 as num_edges,
+*            -1 as index, false as onStack, -1 as low_link and an empty adjacence list.
+* @param value   Integer value for v->value
+* @return v      New Vertex element
+*/
 Vertex* newVertex(int value) {
     Vertex *v = (Vertex *)malloc(sizeof(Vertex));
     v->value = value;
