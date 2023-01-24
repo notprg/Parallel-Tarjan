@@ -30,48 +30,7 @@
 #include <stdio.h>
 #include "../src/tarjan.c"
 
-void printSCC(Vertex **scc, int row, int column) {
-  for(int i = 0; i < row; i++) {
-      printf("SCC n. %d: ", i);
-      for(int j = 0; j < column; j++) {
-          if(scc[i][j].value != -1 && scc[i][j].value != 0) {
-              printf("%d ", scc[i][j].value); 
-          }
-          else {
-              j = column;
-          }
-      }
-      printf("\n");
-  }
-  printf("\n");
-}
-
-int cmpfunc (const void * a, const void * b) {
-   return ( *(int*)a - *(int*)b );
-}
-
-bool assert_matrix_equals(Vertex **expected, Vertex **obtained,  int rows, int cols) {
-    int i, j, k, x;
-    bool found;
-    for(int i = 0; i < rows; i++) {
-        found = true;
-        for(int j = 0; j < rows; j++) {
-            for(k = 0; k < cols; k++) {
-                found = true;
-                for(x = 0; x < cols; x++) {
-                    if(!sameVertex(&expected[i][k], &obtained[j][x])) {
-                        found = false;
-                        break;
-                    }
-                }
-            }
-        }
-        if(!found) {
-            return false;
-        }
-    }
-    return true;
-}
+bool assert_matrix_equals(Vertex **expected, Vertex **obtained,  int rows, int cols); 
 
 int main(int argc, char **argv) {
 
@@ -134,7 +93,7 @@ int main(int argc, char **argv) {
     int static scc_row, scc_column = 0;
     obtained = tarjan(gr, obtained, &scc_row, &scc_column);
     
-    bool result = assert_matrix_equals(expected0, obtained, gr.num_vertex, gr.num_vertex);
+    bool result = assert_matrix_equals(expected0, obtained, gr.num_vertex, gr.num_vertex, gr.num_vertex, gr.num_vertex);
     
     if(result)
         printf("Test 1 passed succesfully!\n");
@@ -246,7 +205,7 @@ int main(int argc, char **argv) {
     scc_row, scc_column = 0;
     obtained2 = tarjan(gr2, obtained2, &scc_row, &scc_column);
     
-    bool result2 = assert_matrix_equals(expected, obtained2, gr2.num_vertex, gr2.num_vertex);
+    bool result2 = assert_matrix_equals(expected, obtained2, gr2.num_vertex, gr2.num_vertex, gr.num_vertex, gr.num_vertex);
     
     if(result2)
         printf("Test 2 passed succesfully!\n");
@@ -266,3 +225,37 @@ int main(int argc, char **argv) {
     return 0;
 }
 
+/**
+ * @brief This function asserts that two Matrix are equals, independently by the order of their rows and cols
+ * @param expecteed                   First matrix to be compared
+ * @param obtained                    Second matrix to be compared
+ * @param expected_rows               Number of rows of the expected matrix
+ * @param expected_cols               Number of columns of the expected matrix
+ * @param obtained_rows               Number of rows of the obtained matrix
+ * @param obtained_cols               Number of columns of the obtained matrix
+ * @return                            true if the matrices are equals, false otherwise
+**/
+bool assert_matrix_equals(Vertex **expected, Vertex **obtained,  int expected_rows, int expected_cols, int obtained_rows, int obtained_cols) {
+    if(expected_rows != obtained_rows || expected_cols != expected_cols)
+        return false;
+    int i, j, k, x;
+    bool found;
+    for(int i = 0; i < expected_rows; i++) {
+        found = true;
+        for(int j = 0; j < obtained_rows; j++) {
+            for(k = 0; k < expected_cols; k++) {
+                found = true;
+                for(x = 0; x < obtained_cols; x++) {
+                    if(!sameVertex(&expected[i][k], &obtained[j][x])) {
+                        found = false;
+                        break;
+                    }
+                }
+            }
+        }
+        if(!found) {
+            return false;
+        }
+    }
+    return true;
+}
