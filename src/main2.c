@@ -30,8 +30,8 @@
 #include <mpi.h>
 #include <math.h>
 #include <omp.h>
-#include "Vertex.h"
-#include "Graph.h"
+#include "../include/Vertex.h"
+#include "../include/Graph.h"
 #include "tarjan.c"
 
 void printSCC(Vertex **scc, int row, int column);
@@ -39,6 +39,8 @@ void printSCC(Vertex **scc, int row, int column);
 int main(int argc, char*argv[]) {
 
   //omp_set_num_threads(2);
+  int position, buffer_size;
+  int *buffer;
   static int scc_row = 0;
   static int scc_column = 0;
   MPI_Init(&argc, &argv);
@@ -111,17 +113,41 @@ int main(int argc, char*argv[]) {
       
       for(int i = 0; i < gs.num_graphs; i++){
           for(int j = 0; j < gs.graphs[i].num_vertex; j++){
-              MPI_Send(&(gs.graphs[i].elements[j]->value), 1, MPI_INT, i, 0, MPI_COMM_WORLD); 
-              MPI_Send(gs.graphs[i].elements[j]->num_edges, 1, MPI_INT, i, 3, MPI_COMM_WORLD); 
-              MPI_Send(gs.graphs[i].elements[j]->adj_list, sizeof(int) * (*gs.graphs[i].elements[j]->num_edges), MPI_BYTE, i, 1, MPI_COMM_WORLD);
+              MPI_Send(gs.graphs[i].elements[j]->num_edges, 1, MPI_INT, i, 1, MPI_COMM_WORLD); 
+              position = 0;
+              buffer_size = 0;
+              MPI_Pack_size(1, MPI_INT, MPI_COMM_WORLD, &buffer_size);
+              MPI_Pack_size(sizeof(int) * ((*gs.graphs[i].elements[j]->num_edges) + 1), MPI_BYTE, MPI_COMM_WORLD, &buffer_size);
+              buffer = (int *)malloc(buffer_size);
+              //MPI_Alloc_mem(buffer_size, MPI_INFO_NULL, &buffer);
+              // Serializza i dati nel buffer
+              MPI_Pack(&(gs.graphs[i].elements[j]->value), 1, MPI_INT, buffer, buffer_size, &position, MPI_COMM_WORLD);
+              MPI_Pack(gs.graphs[i].elements[j]->adj_list, sizeof(int) * (*gs.graphs[i].elements[j]->num_edges), MPI_BYTE, buffer, buffer_size, &position, MPI_COMM_WORLD);
+
+              // Invia il buffer serializzato
+              MPI_Send(buffer, position, MPI_PACKED, i, 1, MPI_COMM_WORLD);
+
+              // Dealloca il buffer
+              free(buffer);
           }
       }
   }
   for(int k = 0; k < minigraph_num_vertex; k++) {
-    MPI_Recv(&v[k]->value, 1, MPI_INT, 0, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-    MPI_Recv(v[k]->num_edges, 1, MPI_INT, 0, 3, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-    MPI_Recv(v[k]->adj_list, sizeof(int) * (*v[k]->num_edges), MPI_BYTE, 0, 1, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+    MPI_Recv(v[k]->num_edges, 1, MPI_INT, 0, 1, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+    buffer_size = 0;
+    position = 0;
+    MPI_Pack_size(1, MPI_INT, MPI_COMM_WORLD, &buffer_size);
+    MPI_Pack_size((*v[k]->num_edges + 1) * sizeof(int), MPI_BYTE, MPI_COMM_WORLD, &buffer_size);
+    // Alloca il buffer
+    buffer = (int *)malloc(buffer_size);
+    //MPI_Alloc_mem(buffer_size, MPI_INFO_NULL, &buffer);
+    //buffer = (int *) calloc((*v[k]->num_edges) + 1, sizeof(int));
+    MPI_Recv(buffer, buffer_size, MPI_PACKED, 0, 1, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+    MPI_Unpack(buffer, buffer_size, &position, &(v[k]->value), 1, MPI_INT, MPI_COMM_WORLD);
+    MPI_Unpack(buffer, buffer_size, &position, v[k]->adj_list, sizeof(int) * (*v[k]->num_edges), MPI_BYTE, MPI_COMM_WORLD);
+    
     addVertex(&miniGraphs, v[k]);
+    free(buffer);
   }
   
   //free(v);
@@ -163,9 +189,23 @@ int main(int argc, char*argv[]) {
           }
           MPI_Send(&composedGraph.num_vertex, 1, MPI_INT, rank - (size_vect/2), 4, MPI_COMM_WORLD); 
           for(int i = 0; i < composedGraph.num_vertex; i++) {
-              MPI_Send(&(composedGraph.elements[i]->value), 1, MPI_INT, rank - (size_vect/2), 0, MPI_COMM_WORLD); //OK
-              MPI_Send(composedGraph.elements[i]->num_edges, 1, MPI_INT, rank - (size_vect/2), 3, MPI_COMM_WORLD); //OK 
-              MPI_Send(composedGraph.elements[i]->adj_list, sizeof(int) * (*composedGraph.elements[i]->num_edges), MPI_BYTE, rank - (size_vect/2), 10, MPI_COMM_WORLD);
+              MPI_Send(composedGraph.elements[i]->num_edges, 1, MPI_INT, rank - (size_vect/2), 1, MPI_COMM_WORLD); 
+              position = 0;
+              buffer_size = 0;
+              MPI_Pack_size(1, MPI_INT, MPI_COMM_WORLD, &buffer_size);
+              MPI_Pack_size(1, MPI_INT, MPI_COMM_WORLD, &buffer_size);
+              MPI_Pack_size(sizeof(int) * ((*composedGraph.elements[i]->num_edges) + 1), MPI_BYTE, MPI_COMM_WORLD, &buffer_size);
+              buffer = (int *)malloc(buffer_size);
+              //MPI_Alloc_mem(buffer_size, MPI_INFO_NULL, &buffer);
+              // Serializza i dati nel buffer
+              MPI_Pack(&(composedGraph.elements[i]->value), 1, MPI_INT, buffer, buffer_size, &position, MPI_COMM_WORLD);
+              MPI_Pack(composedGraph.elements[i]->adj_list, sizeof(int) * (*composedGraph.elements[i]->num_edges), MPI_BYTE, buffer, buffer_size, &position, MPI_COMM_WORLD);
+
+              // Invia il buffer serializzato
+              MPI_Send(buffer, position, MPI_PACKED, rank - (size_vect/2), 1, MPI_COMM_WORLD);
+
+              // Dealloca il buffer
+              free(buffer);
           }
       }
       
@@ -173,13 +213,22 @@ int main(int argc, char*argv[]) {
           int received_scc;          
           MPI_Recv(&received_scc, 1, MPI_INT, rank + (size_vect/2), 4, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
           for(int i = 0; i < received_scc; i++) {
+                  position = 0;
                   Vertex *rv = newVertex(-1);
-                  MPI_Recv(&rv->value, 1, MPI_INT, rank + (size_vect/2), 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-                  MPI_Recv(rv->num_edges, 1, MPI_INT, rank + (size_vect/2), 3, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-                  MPI_Recv(rv->adj_list, sizeof(int) * (*rv->num_edges), MPI_BYTE, rank + (size_vect/2), 10, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+                  MPI_Recv(rv->num_edges, 1, MPI_INT, rank + (size_vect/2), 1, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+                  //buffer = (int *) calloc((*rv->num_edges) + 1, sizeof(int));
+                  MPI_Pack_size(1, MPI_INT, MPI_COMM_WORLD, &buffer_size);
+                  MPI_Pack_size((*rv->num_edges + 1) * sizeof(int), MPI_BYTE, MPI_COMM_WORLD, &buffer_size);
+                  // Alloca il buffer
+                  buffer = (int *)malloc(buffer_size);
+                  //MPI_Alloc_mem(buffer_size, MPI_INFO_NULL, &buffer);
+                  MPI_Recv(buffer, buffer_size, MPI_PACKED, rank + (size_vect/2), 1, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+                  MPI_Unpack(buffer, buffer_size, &position, &(rv->value), 1, MPI_INT, MPI_COMM_WORLD);
+                  MPI_Unpack(buffer, buffer_size, &position, rv->adj_list, sizeof(int) * (*rv->num_edges), MPI_BYTE, MPI_COMM_WORLD);
                   if(rv->value != -1) {
                       addVertex(&composedGraph, rv);
                   }
+                  free(buffer);
           }
           sccMatrix = tarjan(composedGraph, sccMatrix, &scc_row, &scc_column);
           myGraphIsOk = true;
@@ -196,6 +245,7 @@ int main(int argc, char*argv[]) {
     MPI_Barrier(MPI_COMM_WORLD);
     if(size == 1) {
         sccMatrix = tarjan(gr, sccMatrix, &scc_row, &scc_column); 
+        //printSCC(sccMatrix, scc_row, gr.num_vertex);
     }
     else if(rank == 0) {
         

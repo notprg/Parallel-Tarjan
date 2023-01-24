@@ -25,14 +25,24 @@
 
 
 CC=mpicc
+GCC=gcc
 CFLAGS=-O3 -fopenmp -I./include -lm
+GFLAGS=-O3 -o -I./include
 LDFLAGS=-lm
 
-all: main
+all: main main2 sequential test
 
 main: ./src/main.c
-	$(CC) $(CFLAGS) -o ./src/main ./src/main.c $(LDFLAGS)
+	$(CC) $(CFLAGS) -o ./bin/main ./src/main.c $(LDFLAGS)
+
+main2: ./src/main2.c
+	$(CC) $(CFLAGS) -o ./bin/main2 ./src/main2.c $(LDFLAGS)
+
+sequential: ./src/sequential.c
+	$(GCC) $(GFLAGS) -o ./bin/sequential ./src/sequential.c $(LDFLAGS)
+
+test: ./test/test.c
+	$(GCC) $(GFLAGS) -o ./bin/test ./test/test.c $(LDFLAGS)
 
 clean:
-	rm -f main
-
+	rm -f ./bin/main ./bin/main2 ./bin/sequential ./bin/test

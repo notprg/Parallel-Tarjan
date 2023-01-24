@@ -35,11 +35,8 @@ typedef unsigned char vertex; //da capire perchè viene usato un unsigned char
 
 int main(int argc, char* argv[]){
 
-
-    char *fileName = (char *)malloc(sizeof(char) * 256);
-    fileName = argv[3];
     FILE *fp;
-    fp = fopen(fileName, "w");
+    fp = fopen("graph.txt", "w");
     if(fp == NULL) {
         printf("Impossibile aprire il file!!!\n");
         exit(1);

@@ -39,7 +39,7 @@ int main(int argc, char*argv[]) {
   
   //Graph init new version
   FILE *fp;
-  fp = fopen("file.txt", "r");
+  fp = fopen("graph.txt", "r");
   if(fp == NULL) {
       printf("Impossibile aprire il file!!!\n");
       exit(1);
@@ -81,7 +81,7 @@ int main(int argc, char*argv[]) {
   }
   
   sccMatrix = tarjan(gr, sccMatrix, &scc_row, &scc_column);  
-  printSCC(sccMatrix, scc_row, gr.num_vertex);
+  //printSCC(sccMatrix, scc_row, gr.num_vertex);
   return 0;
 }
   
@@ -89,12 +89,12 @@ void printSCC(Vertex **scc, int row, int column) {
     for(int i = 0; i < row; i++) {
         printf("SCC n. %d: ", i);
         for(int j = 0; j < column; j++) {
-            //if(scc[i][j].value != -1) {
+            if(scc[i][j].value != -1) {
                 printf("%d ", scc[i][j].value); 
-            //}
-            //else {
-            //    break;
-            //}
+            }
+            else {
+                break;
+            }
         }
         printf("\n");
     }
