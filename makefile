@@ -41,8 +41,8 @@ main2: ./src/main2.c
 sequential: ./src/sequential.c
 	$(GCC) $(GFLAGS) -o ./bin/sequential ./src/sequential.c $(LDFLAGS)
 
-test: ./test/test.c
-	$(GCC) $(GFLAGS) -o ./bin/test ./test/test.c $(LDFLAGS)
+test: ./src/test.c
+	$(GCC) $(GFLAGS) -o ./bin/test ./src/test.c $(LDFLAGS)
 
 clean:
 	rm -f ./bin/main ./bin/main2 ./bin/sequential ./bin/test
