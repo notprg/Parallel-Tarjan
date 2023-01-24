@@ -36,7 +36,7 @@ typedef unsigned char vertex; //da capire perchè viene usato un unsigned char
 int main(int argc, char* argv[]){
 
     FILE *fp;
-    fp = fopen("graph.txt", "w");
+    fp = fopen("../src/graph.txt", "w");
     if(fp == NULL) {
         printf("Impossibile aprire il file!!!\n");
         exit(1);

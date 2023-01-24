@@ -30,7 +30,7 @@ CFLAGS=-O3 -fopenmp -I./include -lm
 GFLAGS=-O3 -o -I./include
 LDFLAGS=-lm
 
-all: main main2 sequential test
+all: main main2 sequential test generatoreGrafi
 
 main: ./src/main.c
 	$(CC) $(CFLAGS) -o ./bin/main ./src/main.c $(LDFLAGS)
@@ -40,9 +40,12 @@ main2: ./src/main2.c
 
 sequential: ./src/sequential.c
 	$(GCC) $(GFLAGS) -o ./bin/sequential ./src/sequential.c $(LDFLAGS)
+	
+generatoreGrafi: ./src/generatoreGrafi.c
+	$(GCC) $(GFLAGS) -o ./bin/generatoreGrafi ./src/generatoreGrafi.c $(LDFLAGS)
 
 test: ./src/test.c
 	$(GCC) $(GFLAGS) -o ./bin/test ./src/test.c $(LDFLAGS)
 
 clean:
-	rm -f ./bin/main ./bin/main2 ./bin/sequential ./bin/test 
+	rm -f ./bin/main ./bin/main2 ./bin/sequential ./bin/test ./bin/generatoreGrafi

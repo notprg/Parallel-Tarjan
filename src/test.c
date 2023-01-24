@@ -30,7 +30,7 @@
 #include <stdio.h>
 #include "../src/tarjan.c"
 
-bool assert_matrix_equals(Vertex **expected, Vertex **obtained,  int rows, int cols); 
+bool assert_matrix_equals(Vertex **expected, Vertex **obtained,  int expected_rows, int expected_cols, int obtained_rows, int obtained_cols); 
 
 int main(int argc, char **argv) {
 
@@ -205,7 +205,7 @@ int main(int argc, char **argv) {
     scc_row, scc_column = 0;
     obtained2 = tarjan(gr2, obtained2, &scc_row, &scc_column);
     
-    bool result2 = assert_matrix_equals(expected, obtained2, gr2.num_vertex, gr2.num_vertex, gr.num_vertex, gr.num_vertex);
+    bool result2 = assert_matrix_equals(expected, obtained2, gr2.num_vertex, gr2.num_vertex, gr2.num_vertex, gr2.num_vertex);
     
     if(result2)
         printf("Test 2 passed succesfully!\n");
