@@ -27,10 +27,11 @@
 CC=mpicc
 GCC=gcc
 CFLAGS=-O3 -fopenmp -I./include -lm
+CFLAGS2=-O3 -I./include -lm
 GFLAGS=-O3 -o -I./include
 LDFLAGS=-lm
 
-all: main main2 sequential test generatoreGrafi
+all: main main2 sequential test generatoreGrafi main_no_omp
 
 main: ./src/main.c
 	$(CC) $(CFLAGS) -o ./bin/main ./src/main.c $(LDFLAGS)
@@ -46,6 +47,9 @@ generatoreGrafi: ./src/generatoreGrafi.c
 
 test: ./src/test.c
 	$(GCC) $(GFLAGS) -o ./bin/test ./src/test.c $(LDFLAGS)
+	
+main_no_omp: ./src/main.c 
+	$(CC) $(CFLAGS2) -o ./bin/main_no_omp ./src/main.c $(LDFLAGS)
 
 clean:
-	rm -f ./bin/main ./bin/main2 ./bin/sequential ./bin/test ./bin/generatoreGrafi
+	rm -f ./bin/main ./bin/main2 ./bin/sequential ./bin/test ./bin/generatoreGrafi ./bin/main_no_omp
