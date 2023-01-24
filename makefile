@@ -45,4 +45,4 @@ test: ./src/test.c
 	$(GCC) $(GFLAGS) -o ./bin/test ./src/test.c $(LDFLAGS)
 
 clean:
-	rm -f ./bin/main ./bin/main2 ./bin/sequential ./bin/test
+	rm -f ./bin/main ./bin/main2 ./bin/sequential ./bin/test 
