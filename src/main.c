@@ -47,7 +47,7 @@ int main(int argc, char*argv[]) {
   MPI_Comm_size(MPI_COMM_WORLD, &size); 
   
   FILE *fp;
-  fp = fopen("graph.txt", "r");
+  fp = fopen("../src/graph.txt", "r");
   if(fp == NULL) {
       printf("Impossibile aprire il file!!!\n");
       exit(1);
