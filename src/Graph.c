@@ -8,7 +8,7 @@
 Graph newGraph() {
     Graph g;
     g.num_vertex = 0;
-    g.elements = malloc(1000000 * sizeof(Vertex));
+    g.elements = malloc(6000 * sizeof(Vertex));
     return g;
 }
 
