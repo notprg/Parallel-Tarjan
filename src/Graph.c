@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "Graph.h"
+#include "../include/Graph.h"
 /** 
 *@brief This function creates a graph
 *@return g        It returns an empty graph
