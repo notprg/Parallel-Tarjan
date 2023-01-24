@@ -1,41 +1,21 @@
-/*
-# Course: High Performance Computing 2022/2023
-# 
-# Lecturer: Francesco Moscato fmoscato@unisa.it
-#
-# Group:
-# Marcone Giuseppe 0622701896 g.marcone2@studenti.unisa.it               
-# Pizzulo Rocco Gerardo 0622701990  r.pizzulo@studenti.unisa.it 
-# Russo Luigi  0622702071  l.russo86@studenti.unisa.it
-#
-# This file is part of ParallelTarjan.
-#
-# ParallelTarjan is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
-#
-# ParallelTarjan is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with ParallelTarjan.  If not, see <http://www.gnu.org/licenses/>.
-*/
-
-
 #include <stdio.h>
 #include <stdlib.h>
-#include "../include/Graph.h"
-
+#include "Graph.h"
+/** 
+*@brief This function creates a graph
+*@return g        It returns an empty graph
+*/
 Graph newGraph() {
     Graph g;
     g.num_vertex = 0;
-    g.elements = malloc(100000 * sizeof(Vertex));
+    g.elements = malloc(1000000 * sizeof(Vertex));
     return g;
 }
 
+/**
+*@brief This function creates an empty GraphSet
+*@return splitted_graphs    It returns a graphSet
+*/
 GraphSet newGraphSet(int num_graphs) {
     GraphSet splitted_graphs;
     splitted_graphs.num_graphs = num_graphs;
@@ -45,13 +25,22 @@ GraphSet newGraphSet(int num_graphs) {
     return splitted_graphs;
 }
 
+/**
+*@brief This function add a vertex to a graph
+*@param g                  poiter to graph
+*@param v                  pointer to vertex
+*/
 void addVertex(Graph *g, Vertex *v) {
     g->elements[g->num_vertex] = v;
     g->num_vertex++;
 }
 
+/**
+*@brief This function print a graph
+*@param g                       pointer to graph
+*/
+
 void printGraph(Graph *g) {
-    #pragma omp parallel for
     for (int i = 0; i < g->num_vertex; i++)
     {
         if(g->elements[i]->value != -1) {
@@ -61,8 +50,12 @@ void printGraph(Graph *g) {
     }
 }
 
+/**
+*@brief This function split the graph and add the sub-graph to graphset
+*@param g                       pointer to graph
+*@param gs                      pointer to graphset
+*/
 void splitGraph(Graph *g, GraphSet *gs) {
-    #pragma omp parallel for
     for(int i = 0; i < gs->num_graphs; i++) {
         for(int j = 0; j < g->num_vertex / gs->num_graphs; j++) {
           addVertex(&gs->graphs[i], g->elements[j + (i * (g->num_vertex / gs->num_graphs))]);
@@ -70,9 +63,15 @@ void splitGraph(Graph *g, GraphSet *gs) {
     }
 }
 
+
+/**
+*@brief This function verify if the graph contains a vertex
+*@param g                       pointer to graph
+*@param v                       pointer to vertex
+*@return result                 it returns true if the graph contains the vertex, else it returns false   
+*/
 bool searchNode(Graph *g, Vertex *v) {
     bool result = false;
-    #pragma omp parallel for
     for(int i = 0; i < g->num_vertex; i++) {
         if(g->elements[i]->value == v->value)
           result = true;
@@ -80,6 +79,12 @@ bool searchNode(Graph *g, Vertex *v) {
     return result;
 }
 
+/**
+*@brief This function searchs the value in the graph
+*@param g                       pointer to graph
+*@param value                   value to search
+*@return result                 it returns the vertex searched if exists, else returns a default vertex with value -1 
+*/
 Vertex* searchByValue(Graph *g, int value) {
     for(int i = 0; i < g->num_vertex; i++) {
         if(g->elements[i]->value == value)
@@ -88,6 +93,12 @@ Vertex* searchByValue(Graph *g, int value) {
     return newVertex(-1);
 }
 
+/**
+*@brief This function compares two garphs
+*@param a                       graph number one
+*@param b                       graph number two
+*@return result                 it returns true if the graphs are equal, else false
+*/
 bool graphEqual(Graph a, Graph b) {
     if(a.num_vertex != b.num_vertex) {
         printf("I numeri di elementi sono diversi\n%d - %d\n", a.num_vertex, b.num_vertex);

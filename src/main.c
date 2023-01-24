@@ -34,8 +34,6 @@
 #include "Graph.h"
 #include "tarjan.c"
 
-void printSCC(Vertex **scc, int row, int column);
-
 int main(int argc, char*argv[]) {
 
   //omp_set_num_threads(2);
@@ -218,22 +216,4 @@ int main(int argc, char*argv[]) {
     }
     free(sccMatrix);
     MPI_Finalize();
-}
-
-void printSCC(Vertex **scc, int row, int column) {
-  #pragma omp parallel for
-  for(int i = 0; i < row; i++) {
-      printf("SCC n. %d: ", i);
-      #pragma omp parallel for
-      for(int j = 0; j < column; j++) {
-          if(scc[i][j].value != -1 && scc[i][j].value != 0) {
-              printf("%d ", scc[i][j].value); 
-          }
-          else {
-              j = column;
-          }
-      }
-      printf("\n");
-  }
-  printf("\n");
 }

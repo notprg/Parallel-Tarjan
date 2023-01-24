@@ -33,10 +33,20 @@
 #include "Graph.c"
 #include "Vertex.c"
 
-int min(int a, int b) {
-    return a < b ? a : b;
-}
+void printSCC(Vertex **scc, int row, int column);
+int min(int a, int b);
 
+/**
+ * @brief This function looks for a SCC starting by a Vertex. If it will found an SCC, the low_link of each Vertex 
+ *        in the SCC will be the same
+ * @param g				Graph on which Tarjan's algorithm will be applied
+ * @param u                             Starting point of the search
+ * @param s			        Stack used to keep the visiting Vertices
+ * @param stack_size		        Current index of the stack
+ * @param sccMatrix                     Matrix that will contains the SCC found
+ * @param scc_row                       Current row of the matrix
+ * @param scc_column                    Current column of the matrix
+**/
 void scc(Graph g, Vertex *u, Vertex s[], int* stack_size, Vertex *sccMatrix[], int* scc_row, int* scc_column) { 
 
     static int time = 0;
@@ -69,6 +79,16 @@ void scc(Graph g, Vertex *u, Vertex s[], int* stack_size, Vertex *sccMatrix[], i
     }
 }
 
+/**
+ * @brief This function calls scc function on each Vertex of a graph. It also
+ *        initialises a stack that will then be used in the search for SCC.
+ * @param g				Graph on which Tarjan's algorithm will be applied
+ * @param sccMatrix                     Matrix of SCC found, it will be initially empty
+ * @param scc_row			Current number of SCC found
+ * @param scc_column		        Current number of Vertex in the SCC found
+ * @return sccMatrix                    Updated matrix of SCC found
+**/
+
 Vertex **tarjan(Graph g, Vertex** sccMatrix, int *scc_row, int *scc_column) {
     
   Vertex* s = (Vertex*)malloc(sizeof(Vertex) * g.num_vertex);
@@ -81,4 +101,39 @@ Vertex **tarjan(Graph g, Vertex** sccMatrix, int *scc_row, int *scc_column) {
   }   
   free(s);
   return sccMatrix;
+}
+
+/**
+ * @brief This function prints the SCCs found by Tarjan's algorithm in a graph.
+ *        It runs the matrix row by row and prints out the values of the vertices
+ *        of the SCC until it finds a value of 0, which indicates that the SCC is finished.
+ * @param scc				Matrix of SCC, each row is a SCC
+ * @param row				number of SCC found
+ * @param column		        maximum number of Vertex for a SCC
+**/
+void printSCC(Vertex **scc, int row, int column) {
+  #pragma omp parallel for
+  for(int i = 0; i < row; i++) {
+      printf("SCC n. %d: ", i);
+      #pragma omp parallel for
+      for(int j = 0; j < column; j++) {
+          if(scc[i][j].value != -1 && scc[i][j].value != 0) {
+              printf("%d ", scc[i][j].value); 
+          }
+          else {
+              j = column;
+          }
+      }
+      printf("\n");
+  }
+  printf("\n");
+}
+
+/**
+ * @brief This function returns the minimum value of its parameters
+ * @param a				First value to be compared
+ * @param b				Second value to be compared
+**/
+int min(int a, int b) {
+    return a < b ? a : b;
 }

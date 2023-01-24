@@ -31,7 +31,7 @@
 #include "../include/Vertex.h"
 #include "../include/Graph.h"
 #include "tarjan.c"
-void printSCC(Vertex **scc, int row, int column);
+
 int main(int argc, char*argv[]) {
 
   static int scc_row = 0;
@@ -83,20 +83,4 @@ int main(int argc, char*argv[]) {
   sccMatrix = tarjan(gr, sccMatrix, &scc_row, &scc_column);  
   //printSCC(sccMatrix, scc_row, gr.num_vertex);
   return 0;
-}
-  
-void printSCC(Vertex **scc, int row, int column) {
-    for(int i = 0; i < row; i++) {
-        printf("SCC n. %d: ", i);
-        for(int j = 0; j < column; j++) {
-            if(scc[i][j].value != -1) {
-                printf("%d ", scc[i][j].value); 
-            }
-            else {
-                break;
-            }
-        }
-        printf("\n");
-    }
-    printf("\n");
 }
