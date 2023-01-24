@@ -18,6 +18,8 @@ make
 ## Execution
 To execute the project, use the mpirun or mpiexec command, specifying the number of processes to be used.
 
+ + mpirun -np 4 ./bin/main_no_omp -> Will execute the parallel version without openMP with 4 processes
+
  + mpirun -np 4 ./bin/main -> Will execute the main with 4 processes
 
  + mpirun -np 4 ./bin/main2 -> Will execute the main version with MPI_Pack and MPI_Unpack with 4 processes
